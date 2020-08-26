@@ -8,7 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 # Root directory of the project
-ROOT_DIR = os.path.abspath("./backlash/")
+ROOT_DIR = os.path.abspath(".")
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
@@ -113,16 +113,8 @@ plt.imshow(masked_image.astype(np.uint8))
 
 mask = np.logical_and(mask_other, np.logical_not(mask_policeman))
 
-plt.imshow(mask.astype(np.uint8))
-plt.show()
-plt.imshow(mask_policeman.astype(np.uint8))
-plt.show()
-plt.imshow(mask_other.astype(np.uint8))
-plt.show()
-
-
 masked_image = image.astype(np.uint32).copy()
 masked_image = visualize.apply_mask(masked_image, mask, visualize.random_colors(2)[0], alpha=1)
 
 plt.imshow(masked_image.astype(np.uint8))
-plt.show()
+plt.imsave("test.jpg")
