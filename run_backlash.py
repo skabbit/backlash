@@ -117,4 +117,4 @@ masked_image = image.astype(np.uint32).copy()
 masked_image = visualize.apply_mask(masked_image, mask, visualize.random_colors(2)[0], alpha=1)
 
 plt.imshow(masked_image.astype(np.uint8))
-plt.imsave("test.jpg")
+plt.imsave("test.jpg", masked_image.astype(np.uint8))

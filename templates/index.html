@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Flask-Dropzone Demo: Basic</title>
+  {{ dropzone.load_css() }}
+  {{ dropzone.style('border: 2px dashed #0087F7; margin: 0; padding: 0; width:100%; min-height: 100%; position: absolute;') }}
+  <style>
+    body, html {
+      padding: 0;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  {{ dropzone.create(action='upload') }}
+  {{ dropzone.load_js() }}
+  {{ dropzone.config(custom_options="createImageThumbnails: false") }}
+  <script>
+    Dropzone.options.myDropzone.success = function(file, response){
+      console.log(response);
+    };
+  </script>
+
+</body>
+</html>
