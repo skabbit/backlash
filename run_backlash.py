@@ -2,10 +2,16 @@ import os
 import sys
 import random
 import math
+import time
+import io
+
 import numpy as np
 import skimage.io
 import matplotlib
 import matplotlib.pyplot as plt
+import datetime
+import requests
+from PIL import Image
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath(".")
@@ -21,6 +27,9 @@ MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 
 # Directory of images to run detection on
 IMAGE_DIR = os.path.join(ROOT_DIR, "images")
+
+# web server with tasks to process
+WEB_SERVER = "http://127.0.0.1:5000"
 
 import samples.coco.coco as coco
 import samples.backlash.backlash as backlash
@@ -88,36 +97,54 @@ model = BacklashMaskRCNNModel()
 model_full = MaskRCNNModel()
 
 
-IMAGE_DIR = os.path.join(ROOT_DIR, "datasets/police/val")
-file_names = next(os.walk(IMAGE_DIR))[2]
-file_names = list(filter(lambda x: not x.endswith("json"), file_names))
+# IMAGE_DIR = os.path.join(ROOT_DIR, "datasets/police/val")
+# file_names = next(os.walk(IMAGE_DIR))[2]
+# file_names = list(filter(lambda x: not x.endswith("json"), file_names))
+# image = skimage.io.imread(os.path.join(IMAGE_DIR, file_names[0]))
 
-image = skimage.io.imread(os.path.join(IMAGE_DIR, file_names[0]))
 
-# Run detection
-import datetime
-print(datetime.datetime.now())
-results = model_full.model.detect([image], verbose=1)
-results_policeman = model.model.detect([image], verbose=1)
-print(datetime.datetime.now())
+def process_image(image):
+    # Run detection
+    global model_full, model
 
-# Visualize results
-mask_other = np.logical_or.reduce(results[0]['masks'], axis=2)
-mask_policeman = np.logical_or.reduce(results_policeman[0]['masks'], axis=2)
+    results = model_full.model.detect([image], verbose=1)
+    results_policeman = model.model.detect([image], verbose=1)
+    # Visualize results
+    mask_other = np.logical_or.reduce(results[0]['masks'], axis=2)
+    mask_policeman = np.logical_or.reduce(results_policeman[0]['masks'], axis=2)
+    mask = np.logical_or(mask_policeman, mask_other)
+    # plt.imshow(mask.astype(np.uint8))
+    masked_image = image.astype(np.uint32).copy()
+    masked_image = visualize.apply_mask(masked_image, mask, visualize.random_colors(2)[0], alpha=1)
+    # plt.imshow(masked_image.astype(np.uint8))
+    mask = np.logical_and(mask_other, np.logical_not(mask_policeman))
+    masked_image = image.astype(np.uint32).copy()
+    masked_image = visualize.apply_mask(masked_image, mask, visualize.random_colors(2)[0], alpha=1)
+    # plt.imshow(masked_image.astype(np.uint8))
+    return masked_image
 
-mask = np.logical_or(mask_policeman, mask_other)
 
-plt.imshow(mask.astype(np.uint8))
+done = False
+while not done:
+    time.sleep(1)
+    try:
+        job = requests.get(WEB_SERVER + "/jobs")
+    except requests.exceptions.ConnectionError:
+        continue
 
-masked_image = image.astype(np.uint32).copy()
-masked_image = visualize.apply_mask(masked_image, mask, visualize.random_colors(2)[0], alpha=1)
+    if job.text == "empty":
+        continue
 
-plt.imshow(masked_image.astype(np.uint8))
+    filename = job.text
+    sha256 = os.path.splitext(filename)[0]
 
-mask = np.logical_and(mask_other, np.logical_not(mask_policeman))
+    response = requests.get(WEB_SERVER + "/static/uploads/" + filename)
+    image = Image.open(io.BytesIO(response.content)).convert('RGB')
 
-masked_image = image.astype(np.uint32).copy()
-masked_image = visualize.apply_mask(masked_image, mask, visualize.random_colors(2)[0], alpha=1)
+    result_array = process_image(np.asarray(image))
+    result_image = Image.fromarray(result_array.astype(np.uint8))
+    stream = io.BytesIO()
+    stream.name = sha256 + ".jpeg"
+    result_image.save(stream)
+    requests.post(WEB_SERVER + "/jobs", files={'file': (sha256 + ".jpeg", stream.getbuffer())})
 
-plt.imshow(masked_image.astype(np.uint8))
-plt.imsave("test.jpg", masked_image.astype(np.uint8))
