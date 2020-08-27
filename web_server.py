@@ -27,6 +27,8 @@ app.config.update(
 
 dropzone = Dropzone(app)
 
+os.makedirs(app.config['UPLOADED_PATH'], exist_ok=True)
+os.makedirs(app.config['DONE_PATH'], exist_ok=True)
 
 @app.route('/', methods=['POST', 'GET'])
 def upload():
