@@ -29,7 +29,7 @@ MODEL_DIR = os.path.join(ROOT_DIR, "logs")
 IMAGE_DIR = os.path.join(ROOT_DIR, "images")
 
 # web server with tasks to process
-WEB_SERVER = "http://127.0.0.1:5000"
+WEB_SERVER = "http://backlash.graycake.com"
 
 import samples.coco.coco as coco
 import samples.backlash.backlash as backlash
