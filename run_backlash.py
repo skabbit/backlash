@@ -95,8 +95,11 @@ file_names = list(filter(lambda x: not x.endswith("json"), file_names))
 image = skimage.io.imread(os.path.join(IMAGE_DIR, file_names[0]))
 
 # Run detection
+import datetime
+print(datetime.datetime.now())
 results = model_full.model.detect([image], verbose=1)
 results_policeman = model.model.detect([image], verbose=1)
+print(datetime.datetime.now())
 
 # Visualize results
 mask_other = np.logical_or.reduce(results[0]['masks'], axis=2)
