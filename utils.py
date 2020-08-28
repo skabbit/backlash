@@ -1,17 +1,7 @@
 import os
 import sys
-import random
-import math
-import time
-import io
 
 import numpy as np
-import skimage.io
-import matplotlib
-import matplotlib.pyplot as plt
-import datetime
-import requests
-from PIL import Image
 
 # Root directory of the project
 ROOT_DIR = os.path.abspath(".")
@@ -112,39 +102,17 @@ def process_image(image):
     # Visualize results
     mask_other = np.logical_or.reduce(results[0]['masks'], axis=2)
     mask_policeman = np.logical_or.reduce(results_policeman[0]['masks'], axis=2)
-    mask = np.logical_or(mask_policeman, mask_other)
+
+    # mask = np.logical_or(mask_policeman, mask_other)
     # plt.imshow(mask.astype(np.uint8))
-    masked_image = image.astype(np.uint32).copy()
-    masked_image = visualize.apply_mask(masked_image, mask, visualize.random_colors(2)[0], alpha=1)
-    # plt.imshow(masked_image.astype(np.uint8))
+    # masked_image = image.astype(np.uint32).copy()
+    # masked_image = visualize.apply_mask(masked_image, mask, visualize.random_colors(2)[0], alpha=1)
+    # # plt.imshow(masked_image.astype(np.uint8))
+
     mask = np.logical_and(mask_other, np.logical_not(mask_policeman))
     masked_image = image.astype(np.uint32).copy()
-    masked_image = visualize.apply_mask(masked_image, mask, visualize.random_colors(2)[0], alpha=1)
+    masked_image = visualize.apply_mask(masked_image, mask, (1.0, 0.0, 0.0), alpha=1)
+
     # plt.imshow(masked_image.astype(np.uint8))
+
     return masked_image
-
-
-done = False
-while not done:
-    time.sleep(1)
-    try:
-        job = requests.get(WEB_SERVER + "/jobs")
-    except requests.exceptions.ConnectionError:
-        continue
-
-    if job.text == "empty":
-        continue
-
-    filename = job.text
-    sha256 = os.path.splitext(filename)[0]
-
-    response = requests.get(WEB_SERVER + "/static/uploads/" + filename)
-    image = Image.open(io.BytesIO(response.content)).convert('RGB')
-
-    result_array = process_image(np.asarray(image))
-    result_image = Image.fromarray(result_array.astype(np.uint8))
-    stream = io.BytesIO()
-    stream.name = sha256 + ".jpeg"
-    result_image.save(stream)
-    requests.post(WEB_SERVER + "/jobs", files={'file': (sha256 + ".jpeg", stream.getbuffer())})
-

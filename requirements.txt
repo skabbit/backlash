@@ -12,3 +12,4 @@ imgaug
 IPython[all]
 pycocotools
 flask-dropzone
+scikit-video
