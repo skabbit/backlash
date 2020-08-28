@@ -10,12 +10,13 @@ from utils import process_image
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", dest='str', default="test.mp4")
+parser.add_argument("--output", dest='str', default="output.mp4")
 parser.add_argument("--limit", dest='int', default=None)
 args = parser.parse_args()
 
 probe = skvideo.io.ffprobe(args.input)
 videogen = skvideo.io.vreader(args.input)
-writer = skvideo.io.FFmpegWriter("outputvideo.mp4", outputdict={
+writer = skvideo.io.FFmpegWriter(args.output, outputdict={
     '-vcodec': 'libx264', '-b': '5000000'
 })
 
