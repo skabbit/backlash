@@ -9,9 +9,9 @@ import argparse
 from utils import process_image
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input", dest='str', default="test.mp4")
-parser.add_argument("--output", dest='str', default="output.mp4")
-parser.add_argument("--limit", dest='int', default=None)
+parser.add_argument("--input", dest='input', type=str, default="test.mp4")
+parser.add_argument("--output", dest='output', type=str, default="output.mp4")
+parser.add_argument("--limit", dest='limit', type=int, default=None)
 args = parser.parse_args()
 
 probe = skvideo.io.ffprobe(args.input)
