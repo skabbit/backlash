@@ -4,6 +4,8 @@ import sys
 import numpy as np
 
 # Root directory of the project
+from PIL import Image
+
 ROOT_DIR = os.path.abspath(".")
 
 # Import Mask RCNN
@@ -11,6 +13,7 @@ sys.path.append(ROOT_DIR)  # To find local version of the library
 from mrcnn import utils
 import mrcnn.model as modellib
 from mrcnn import visualize
+import skimage.io
 
 # Directory to save logs and trained model
 MODEL_DIR = os.path.join(ROOT_DIR, "logs")
@@ -93,15 +96,16 @@ model_full = MaskRCNNModel()
 # image = skimage.io.imread(os.path.join(IMAGE_DIR, file_names[0]))
 
 
-def process_image(image):
+def process_image(image, color=(1.0, 1.0, 0.0)):
     # Run detection
     global model_full, model
 
     results = model_full.model.detect([image], verbose=1)
     results_policeman = model.model.detect([image], verbose=1)
     # Visualize results
-    mask_other = np.logical_or.reduce(results[0]['masks'], axis=2)
-    mask_policeman = np.logical_or.reduce(results_policeman[0]['masks'], axis=2)
+
+    mask_other = np.logical_or.reduce(results[0]['masks'][:,:,results[0]['class_ids'] == 1], axis=2)
+    mask_policeman = np.logical_or.reduce(results_policeman[0]['masks'][:,:,results_policeman[0]['scores'] > 0.5], axis=2)
 
     # mask = np.logical_or(mask_policeman, mask_other)
     # plt.imshow(mask.astype(np.uint8))
@@ -111,8 +115,13 @@ def process_image(image):
 
     mask = np.logical_and(mask_other, np.logical_not(mask_policeman))
     masked_image = image.astype(np.uint32).copy()
-    masked_image = visualize.apply_mask(masked_image, mask, (1.0, 0.0, 0.0), alpha=1)
+    masked_image = visualize.apply_mask(masked_image, mask, color, alpha=1)
 
     # plt.imshow(masked_image.astype(np.uint8))
 
     return masked_image
+
+if __name__ == '__main__':
+    image = process_image(skimage.io.imread("images/no-cops-test.jpg"))
+    image = Image.fromarray(image.astype(np.uint8))
+    image.save("test.jpg")

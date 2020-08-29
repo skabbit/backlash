@@ -17,7 +17,7 @@ args = parser.parse_args()
 probe = skvideo.io.ffprobe(args.input)
 videogen = skvideo.io.vreader(args.input)
 writer = skvideo.io.FFmpegWriter(args.output, outputdict={
-    '-vcodec': 'libx264', '-b': '5000000'
+    '-vcodec': 'mpeg4',
 })
 
 total = int(probe['video']['@nb_frames'])
