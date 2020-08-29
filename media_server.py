@@ -30,7 +30,7 @@ while not done:
     response = requests.get(WEB_SERVER + "/static/uploads/" + filename)
     image = Image.open(io.BytesIO(response.content)).convert('RGB')
 
-    result_array = process_image(np.asarray(image), visualize.random_colors(random.randint(20) + 3)[2])
+    result_array = process_image(np.asarray(image), visualize.random_colors(random.randint(3, 20))[2])
     result_image = Image.fromarray(result_array.astype(np.uint8))
     stream = io.BytesIO()
     stream.name = sha256 + ".jpeg"
