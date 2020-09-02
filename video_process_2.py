@@ -50,9 +50,7 @@ for frame in tqdm(videogen, total=maximum):
     masked_image = image.astype(np.uint32).copy()
     masked_image = visualize.apply_mask(masked_image, mask, color, alpha=1)
 
-    result_array = process_image(np.asarray(image))
-
-    writer.writeFrame(result_array)
+    writer.writeFrame(masked_image)
     current += 1
     if current == maximum:
         break
