@@ -102,7 +102,6 @@ def process_image(image, color=(1.0, 1.0, 0.0)):
 
     results = model_full.model.detect([image], verbose=1)
     results_policeman = model.model.detect([image], verbose=1)
-    # Visualize results
 
     mask_other = np.logical_or.reduce(results[0]['masks'][:,:,results[0]['class_ids'] == 1], axis=2)
     mask_policeman = np.logical_or.reduce(results_policeman[0]['masks'][:,:,results_policeman[0]['scores'] > 0.5], axis=2)
