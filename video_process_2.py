@@ -55,5 +55,8 @@ for frame in tqdm(videogen, total=maximum):
     if current == maximum:
         break
 
+    mask_other_last = mask_other
+    mask_policeman_last = mask_policeman
+
 writer.close()
 
