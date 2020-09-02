@@ -37,6 +37,8 @@ for frame in tqdm(videogen, total=maximum):
 
     mask_other = np.logical_or.reduce(results[0]['masks'][:,:,results[0]['class_ids'] == 1], axis=2)
     mask_policeman = np.logical_or.reduce(results_policeman[0]['masks'][:,:,results_policeman[0]['scores'] > 0.5], axis=2)
+    mask_other_1 = mask_other
+    mask_policeman_1 = mask_policeman
 
     if mask_other_last is None:
         mask_other_last = mask_other
@@ -55,8 +57,8 @@ for frame in tqdm(videogen, total=maximum):
     if current == maximum:
         break
 
-    mask_other_last = mask_other
-    mask_policeman_last = mask_policeman
+    mask_other_last = mask_other_1
+    mask_policeman_last = mask_policeman_1
 
 writer.close()
 
