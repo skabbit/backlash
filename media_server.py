@@ -10,14 +10,14 @@ from PIL import Image
 from mrcnn import visualize
 from utils import process_image
 
-# web server with tasks to process
-WEB_SERVER = "http://backlash.graycake.com"
+from local_config import WEB_SERVER, PROXY
+
 
 done = False
 while not done:
     time.sleep(1)
     try:
-        job = requests.get(WEB_SERVER + "/jobs")
+        job = requests.get(WEB_SERVER + "/jobs", proxies=PROXY)
     except requests.exceptions.ConnectionError:
         continue
 
