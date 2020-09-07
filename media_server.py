@@ -27,7 +27,11 @@ while not done:
     filename = job.text
     sha256 = os.path.splitext(filename)[0]
 
-    response = requests.get(WEB_SERVER + "/static/uploads/" + filename)
+    try:
+        response = requests.get(WEB_SERVER + "/static/uploads/" + filename, proxies=PROXY)
+    except requests.exceptions.ConnectionError:
+        continue
+
     image = Image.open(io.BytesIO(response.content)).convert('RGB')
 
     result_array = process_image(np.asarray(image), visualize.random_colors(random.randint(3, 20))[2])
@@ -35,5 +39,7 @@ while not done:
     stream = io.BytesIO()
     stream.name = sha256 + ".jpeg"
     result_image.save(stream)
-    requests.post(WEB_SERVER + "/jobs", files={'file': (sha256 + ".jpeg", stream.getbuffer())})
-
+    try:
+        requests.post(WEB_SERVER + "/jobs", files={'file': (sha256 + ".jpeg", stream.getbuffer())}, proxies=PROXY)
+    except requests.exceptions.ConnectionError:
+        continue
