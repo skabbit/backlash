@@ -9,9 +9,13 @@ import argparse
 from utils import process_image, model_full, model
 from mrcnn import visualize
 
+# a little bit smoother video processing
+# reducing shuttering effect by remembering previous masks
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", dest='input', type=str, default="test.mp4")
 parser.add_argument("--output", dest='output', type=str, default="output.mp4")
+parser.add_argument("--model", dest='input', type=str, default=None)
 parser.add_argument("--limit", dest='limit', type=int, default=None)
 args = parser.parse_args()
 
@@ -26,6 +30,10 @@ total = int(probe['video']['@nb_frames'])
 maximum = args.limit if args.limit else total
 current = 0
 color = (0., 1., 0.)
+
+model = BacklashMaskRCNNModel(args.model)
+model_full = MaskRCNNModel()
+
 
 mask_other_last = None
 mask_policeman_last = None

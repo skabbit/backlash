@@ -48,13 +48,9 @@ class MaskRCNNModel():
 
     CONFIG_CLASS = coco.CocoConfig
 
-    def __init__(self):
+    def __init__(self, model_file_name=None):
         # Local path to trained weights file
-        COCO_MODEL_PATH = os.path.join(ROOT_DIR, self.MODEL_FILE_NAME)
-
-        # Download COCO trained weights from Releases if needed
-        if not os.path.exists(COCO_MODEL_PATH):
-            utils.download_trained_weights(COCO_MODEL_PATH)
+        COCO_MODEL_PATH = model_file_name if model_file_name else os.path.join(ROOT_DIR, self.MODEL_FILE_NAME) 
 
         class InferenceConfig(self.CONFIG_CLASS):
             # Set batch size to 1 since we'll be running inference on
@@ -86,10 +82,6 @@ class BacklashMaskRCNNModel(MaskRCNNModel):
     CONFIG_CLASS = backlash.PoliceConfig
 
 
-model = BacklashMaskRCNNModel()
-model_full = MaskRCNNModel()
-
-
 # IMAGE_DIR = os.path.join(ROOT_DIR, "datasets/police/val")
 # file_names = next(os.walk(IMAGE_DIR))[2]
 # file_names = list(filter(lambda x: not x.endswith("json"), file_names))
@@ -99,6 +91,10 @@ model_full = MaskRCNNModel()
 def process_image(image, color=(1.0, 1.0, 0.0)):
     # Run detection
     global model_full, model
+
+    if model_full is None:
+        model = BacklashMaskRCNNModel()
+        model_full = MaskRCNNModel()
 
     results = model_full.model.detect([image], verbose=1)
     results_policeman = model.model.detect([image], verbose=1)

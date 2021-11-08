@@ -25,6 +25,10 @@ Usage: import the module (see Jupyter notebooks for examples), or run from
 
     # Apply color splash to video using the last weights you trained
     python3 backlash.py splash --weights=last --video=<URL or path to file>
+
+    # BACKLASH: Train a new model starting from pre-trained COCO weights
+    python3 backlash.py train --dataset=../../datasets/police2 --weights=coco
+
 """
 
 import os
@@ -270,6 +274,49 @@ def detect_and_color_splash(model, image_path=None, video_path=None):
                 count += 1
         vwriter.release()
     print("Saved to ", file_name)
+
+
+# customize to make static log dir 
+# for tensorboard in colab
+class CustomMaskRCNN(modellib.MaskRCNN):
+
+    def set_log_dir(self, model_path=None):
+        """Sets the model log directory and epoch counter.
+
+        model_path: If None, or a format different from what this code uses
+            then set a new log directory and start epochs from 0. Otherwise,
+            extract the log directory and the epoch counter from the file
+            name.
+        """
+        # Set date and epoch counter as if starting a new model
+        self.epoch = 0
+        now = datetime.datetime.now()
+
+        # If we have a model path with date and epochs use them
+        if model_path:
+            # Continue from we left of. Get epoch and date from the file name
+            # A sample model path might look like:
+            # \path\to\logs\coco20171029T2315\mask_rcnn_coco_0001.h5 (Windows)
+            # /path/to/logs/coco20171029T2315/mask_rcnn_coco_0001.h5 (Linux)
+            regex = r".*[/\\][\w-]+(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})[/\\]mask\_rcnn\_[\w-]+(\d{4})\.h5"
+            m = re.match(regex, model_path)
+            if m:
+                now = datetime.datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)),
+                                        int(m.group(4)), int(m.group(5)))
+                # Epoch number in file is 1-based, and in Keras code it's 0-based.
+                # So, adjust for that then increment by one to start from the next epoch
+                self.epoch = int(m.group(6)) - 1 + 1
+                print('Re-starting from epoch %d' % self.epoch)
+
+        # Directory for training logs
+        self.log_dir = os.path.join(self.model_dir, "{}{:%Y%m%dT%H%M}".format(
+            self.config.NAME.lower(), now))
+
+        # Path to save after each epoch. Include placeholders that get filled by Keras.
+        self.checkpoint_path = os.path.join(self.log_dir, "mask_rcnn_{}_*epoch*.h5".format(
+            self.config.NAME.lower()))
+        self.checkpoint_path = self.checkpoint_path.replace(
+            "*epoch*", "{epoch:04d}")
 
 
 ############################################################
