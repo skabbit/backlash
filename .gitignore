@@ -59,3 +59,6 @@ ENV/
 
 # OSX
 .DS_Store
+
+# videos
+*.mp4

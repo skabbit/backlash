@@ -1,6 +1,6 @@
 """
 Mask R-CNN
-Train on the Backlash policemen USA dataset and implement TODO
+Train on the Backlash 2-class dataset (police/protester) and implement
 
 Copyright (c) 2018 Matterport, Inc.
 Licensed under the MIT License (see LICENSE for details)
@@ -166,7 +166,7 @@ class PoliceDataset(utils.Dataset):
 
         # Return mask, and array of class IDs of each instance. Since we have
         # one class ID only, we return an array of 1s
-        return mask.astype(np.bool), np.ones([mask.shape[-1]], dtype=np.int32)
+        return mask.astype(bool), np.ones([mask.shape[-1]], dtype=np.int32)
 
     def image_reference(self, image_id):
         """Return the path of the image."""

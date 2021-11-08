@@ -1,0 +1,19 @@
+name: backlash
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.6
+  - pillow
+  - tensorflow=1.14.0
+  - matplotlib
+  - cython
+  - opencv
+  - imgaug
+  - ipython
+  - pycocotools
+  - scikit-video
+  - jupyterlab
+  - h5py=2.10.0
+  - tqdm
+prefix: /Users/skabbit/opt/anaconda3/envs/backlash

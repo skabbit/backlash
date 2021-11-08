@@ -25,7 +25,7 @@ IMAGE_DIR = os.path.join(ROOT_DIR, "images")
 WEB_SERVER = "http://backlash.graycake.com"
 
 import samples.coco.coco as coco
-import samples.backlash.backlash as backlash
+import samples.police2.backlash as backlash
 
 
 class MaskRCNNModel():
@@ -82,7 +82,7 @@ class MaskRCNNModel():
 
 class BacklashMaskRCNNModel(MaskRCNNModel):
     CLASSES = ['BG', 'policeman']
-    MODEL_FILE_NAME = "mask_rcnn_police_0100.h5"
+    MODEL_FILE_NAME = "logs/police220211106T1204/mask_rcnn_police2_0019.h5"
     CONFIG_CLASS = backlash.PoliceConfig
 
 

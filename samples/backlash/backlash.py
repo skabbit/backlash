@@ -1,6 +1,6 @@
 """
 Mask R-CNN
-Train on the Backlasb policemen dataset and implement TODO
+Train on the Backlash policemen dataset
 
 Copyright (c) 2018 Matterport, Inc.
 Licensed under the MIT License (see LICENSE for details)
@@ -166,7 +166,7 @@ class PoliceDataset(utils.Dataset):
 
         # Return mask, and array of class IDs of each instance. Since we have
         # one class ID only, we return an array of 1s
-        return mask.astype(np.bool), np.ones([mask.shape[-1]], dtype=np.int32)
+        return mask.astype(bool), np.ones([mask.shape[-1]], dtype=np.int32)
 
     def image_reference(self, image_id):
         """Return the path of the image."""
@@ -181,12 +181,12 @@ def train(model):
     """Train the model."""
     # Training dataset.
     dataset_train = PoliceDataset()
-    dataset_train.load_data(args.dataset, "train", "policeman-train_json.json")
+    dataset_train.load_data(args.dataset, "train", "via_region_data.json")
     dataset_train.prepare()
 
     # Validation dataset
     dataset_val = PoliceDataset()
-    dataset_val.load_data(args.dataset, "val", "policeman-val_json.json")
+    dataset_val.load_data(args.dataset, "val", "via_region_data.json")
     dataset_val.prepare()
 
     # *** This training schedule is an example. Update to your needs ***
@@ -286,7 +286,7 @@ if __name__ == '__main__':
                         metavar="<command>",
                         help="'train' or 'splash'")
     parser.add_argument('--dataset', required=False,
-                        metavar="../../datasets/police",
+                        metavar="../../datasets/police2",
                         help='Directory of the Policemen dataset')
     parser.add_argument('--weights', required=True,
                         metavar="/path/to/weights.h5",
