@@ -6,7 +6,7 @@ import skvideo.io
 from tqdm import tqdm
 import argparse
 
-from utils import process_image, model_full, model
+from utils import BacklashMaskRCNNModel, MaskRCNNModel
 from mrcnn import visualize
 
 # a little bit smoother video processing
@@ -15,7 +15,7 @@ from mrcnn import visualize
 parser = argparse.ArgumentParser()
 parser.add_argument("--input", dest='input', type=str, default="test.mp4")
 parser.add_argument("--output", dest='output', type=str, default="output.mp4")
-parser.add_argument("--model", dest='input', type=str, default=None)
+parser.add_argument("--model", dest='model', type=str, default=None)
 parser.add_argument("--limit", dest='limit', type=int, default=None)
 args = parser.parse_args()
 
@@ -41,8 +41,8 @@ mask_policeman_last = None
 for frame in tqdm(videogen, total=maximum):
     image = np.asarray(Image.fromarray(frame).convert('RGB'))
 
-    results = model_full.model.detect([image], verbose=1)
-    results_policeman = model.model.detect([image], verbose=1)
+    results = model_full.model.detect([image], verbose=0)
+    results_policeman = model.model.detect([image], verbose=0)
 
     mask_other = np.logical_or.reduce(results[0]['masks'][:,:,results[0]['class_ids'] == 1], axis=2)
     mask_policeman = np.logical_or.reduce(results_policeman[0]['masks'][:,:,results_policeman[0]['scores'] > 0.5], axis=2)

@@ -27,7 +27,7 @@ Usage: import the module (see Jupyter notebooks for examples), or run from
     python3 backlash.py splash --weights=last --video=<URL or path to file>
 
     # BACKLASH: Train a new model starting from pre-trained COCO weights
-    python3 backlash.py train --dataset=../../datasets/police2 --weights=coco
+    python3 backlash.py train --dataset=../../datasets/police --weights=coco 
 
 """
 

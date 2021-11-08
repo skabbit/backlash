@@ -67,7 +67,7 @@ class PoliceConfig(Config):
     IMAGES_PER_GPU = 2
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 1  # Background + police
+    NUM_CLASSES = 1 + 2  # Background + police + protester
 
     # Number of training steps per epoch
     STEPS_PER_EPOCH = 100
@@ -89,6 +89,7 @@ class PoliceDataset(utils.Dataset):
         """
         # Add classes. We have only one class to add.
         self.add_class("policeman", 1, "policeman")
+        self.add_class("protester", 2, "protester")
 
         # Train or validation dataset?
         assert subset in ["train", "val"]
@@ -124,11 +125,11 @@ class PoliceDataset(utils.Dataset):
             # shape_attributes (see json format above)
             # The if condition is needed to support VIA versions 1.x and 2.x.
             if type(a['regions']) is dict:
-                polygons = [r['shape_attributes'] for r in a['regions'].values()]
+                polygons = [r for r in a['regions'].values()]
             else:
-                polygons = [r['shape_attributes'] for r in a['regions']]
+                polygons = [r for r in a['regions']]
 
-                # load_mask() needs the image size to convert polygons to masks.
+            # load_mask() needs the image size to convert polygons to masks.
             # Unfortunately, VIA doesn't include it in JSON, so we must read
             # the image. This is only managable since the dataset is tiny.
             image_path = os.path.join(dataset_dir, a['filename'])
@@ -136,7 +137,7 @@ class PoliceDataset(utils.Dataset):
             height, width = image.shape[:2]
 
             self.add_image(
-                "policeman",
+                "police2",
                 image_id=a['filename'],  # use file name as a unique image id
                 path=image_path,
                 width=width, height=height,
@@ -144,37 +145,35 @@ class PoliceDataset(utils.Dataset):
 
     def load_mask(self, image_id):
         """Generate instance masks for an image.
-       Returns:
+        Returns:
         masks: A bool array of shape [height, width, instance count] with
             one mask per instance.
         class_ids: a 1D array of class IDs of the instance masks.
         """
         # If not a policeman dataset image, delegate to parent class.
         image_info = self.image_info[image_id]
-        if image_info["source"] != "policeman":
-            return super(self.__class__, self).load_mask(image_id)
 
         # Convert polygons to a bitmap mask of shape
         # [height, width, instance_count]
         info = self.image_info[image_id]
         mask = np.zeros([info["height"], info["width"], len(info["polygons"])],
                         dtype=np.uint8)
-        for i, p in enumerate(info["polygons"]):
+
+        class_ids = np.zeros([len(info["polygons"])], dtype=np.uint32)
+        for i, r in enumerate(info["polygons"]):
+            p = r['shape_attributes']
             # Get indexes of pixels inside the polygon and set them to 1
             rr, cc = skimage.draw.polygon(p['all_points_y'], p['all_points_x'])
             mask[rr, cc, i] = 1
+            class_ids[i] = int(r['region_attributes']['category_id'])
 
         # Return mask, and array of class IDs of each instance. Since we have
         # one class ID only, we return an array of 1s
-        return mask.astype(bool), np.ones([mask.shape[-1]], dtype=np.int32)
+        return mask.astype(bool), class_ids
 
     def image_reference(self, image_id):
         """Return the path of the image."""
-        info = self.image_info[image_id]
-        if info["source"] == "policeman":
-            return info["path"]
-        else:
-            super(self.__class__, self).image_reference(image_id)
+        return self.image_info[image_id]["path"]
 
 
 def train(model):
