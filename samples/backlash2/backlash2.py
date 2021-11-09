@@ -12,19 +12,19 @@ Usage: import the module (see Jupyter notebooks for examples), or run from
        the command line as such:
 
     # Train a new model starting from pre-trained COCO weights
-    python3 backlash.py train --dataset=/path/to/policemen/dataset --weights=coco
+    python3 backlash2.py train --dataset=/path/to/policemen/dataset --weights=coco
 
     # Resume training a model that you had trained earlier
-    python3 backlash.py train --dataset=/path/to/policemen/dataset --weights=last
+    python3 backlash2.py train --dataset=/path/to/policemen/dataset --weights=last
 
     # Train a new model starting from ImageNet weights
-    python3 backlash.py train --dataset=/path/to/policemen/dataset --weights=imagenet
+    python3 backlash2.py train --dataset=/path/to/policemen/dataset --weights=imagenet
 
     # Apply color splash to an image
-    python3 backlash.py splash --weights=/path/to/weights/file.h5 --image=<URL or path to file>
+    python3 backlash2.py splash --weights=/path/to/weights/file.h5 --image=<URL or path to file>
 
     # Apply color splash to video using the last weights you trained
-    python3 backlash.py splash --weights=last --video=<URL or path to file>
+    python3 backlash2.py splash --weights=last --video=<URL or path to file>
 """
 
 import os
@@ -88,8 +88,8 @@ class PoliceDataset(utils.Dataset):
         subset: Subset to load: train or val
         """
         # Add classes. We have only one class to add.
-        self.add_class("policeman", 1, "policeman")
-        self.add_class("protester", 2, "protester")
+        self.add_class("police2", 1, "policeman")
+        self.add_class("police2", 2, "protester")
 
         # Train or validation dataset?
         assert subset in ["train", "val"]
