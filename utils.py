@@ -10,6 +10,7 @@ ROOT_DIR = os.path.abspath(".")
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
+sys.path.append("/content/backlash")  # To find local version of the library on Google Colab
 from mrcnn import utils
 import mrcnn.model as modellib
 from mrcnn import visualize
@@ -25,7 +26,8 @@ IMAGE_DIR = os.path.join(ROOT_DIR, "images")
 WEB_SERVER = "http://backlash.graycake.com"
 
 import samples.coco.coco as coco
-import samples.police2.backlash as backlash
+import samples.backlash.backlash as backlash
+import samples.backlash2.backlash2 as backlash2
 
 
 class MaskRCNNModel():
@@ -80,6 +82,12 @@ class BacklashMaskRCNNModel(MaskRCNNModel):
     CLASSES = ['BG', 'policeman']
     MODEL_FILE_NAME = "logs/police220211106T1204/mask_rcnn_police2_0019.h5"
     CONFIG_CLASS = backlash.PoliceConfig
+
+
+class Backlash2MaskRCNNModel(MaskRCNNModel):
+    CLASSES = ['BG', 'policeman', 'protester']
+    MODEL_FILE_NAME = "logs/police220211106T1204/mask_rcnn_police2_0019.h5"
+    CONFIG_CLASS = backlash2.PoliceConfig
 
 
 # IMAGE_DIR = os.path.join(ROOT_DIR, "datasets/police/val")
