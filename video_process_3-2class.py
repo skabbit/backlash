@@ -18,6 +18,7 @@ parser.add_argument("--output", dest='output', type=str, default="output.mp4")
 parser.add_argument("--model", dest='model', type=str, default=None)
 parser.add_argument("--limit", dest='limit', type=int, default=None)
 parser.add_argument("--skip", dest='skip', type=int, default=None)
+parser.add_argument("--color", dest='color', type=lambda x: tuple(map(float, x.split(','))), default=(0., 1., 0.))
 args = parser.parse_args()
 
 probe = skvideo.io.ffprobe(args.input)
@@ -30,7 +31,6 @@ writer = skvideo.io.FFmpegWriter(args.output, outputdict={
 total = int(probe['video']['@nb_frames'])
 maximum = args.limit if args.limit else total
 current = 0
-color = (0., 1., 0.)
 
 model = Backlash2MaskRCNNModel(args.model)
 
@@ -54,7 +54,7 @@ for frame in tqdm(videogen, total=maximum):
     mask_protester = np.logical_or(mask_protester, mask_protester_last)
 
     masked_image = image.astype(np.uint32).copy()
-    masked_image = visualize.apply_mask(masked_image, mask_protester, color, alpha=1)
+    masked_image = visualize.apply_mask(masked_image, mask_protester, args.color, alpha=1)
 
     writer.writeFrame(masked_image)
 
